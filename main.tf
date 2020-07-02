@@ -2,28 +2,6 @@ provider "packet" {
     auth_token = var.auth_token
 }
 
-resource "packet_vlan" "private_vlan" {
-    facility    = var.facility
-    project_id  = var.project_id
-    description = "Private Network"
-}
-
-resource "random_string" "bgp_password" {
-    length = 18
-    min_upper = 1 
-    min_lower = 1 
-    min_numeric = 1 
-    special = false
-}
-
-resource "random_string" "ipsec_psk" {
-  length = 20
-  min_upper = 2
-  min_lower = 2
-  min_numeric = 2
-  special = false
-}
-
 resource "packet_device" "router" {
     hostname         = var.hostname
     plan             = var.plan
@@ -39,7 +17,7 @@ resource "packet_device" "router" {
 resource "packet_port_vlan_attachment" "router_vlan_attach" {
     device_id = packet_device.router.id
     port_name = "eth1"
-    vlan_vnid = packet_vlan.private_vlan.vxlan
+    vlan_vnid = var.vlan_id
 }
 
 data "template_file" "vyos_config" {
@@ -47,11 +25,10 @@ data "template_file" "vyos_config" {
     vars = {
         bgp_local_asn = var.bgp_local_asn
         bgp_neighbor_asn = var.bgp_neighbor_asn
-        bgp_password = random_string.bgp_password.result
         hostname = var.hostname
-        ipsec_psk = random_string.ipsec_psk.result
+        ipsec_psk = var.ipsec_pre_shared_key
         ipsec_peer_public_ip = var.ipsec_peer_public_ip
-        ipsec_peer_private_ip = cidrhost(var.ipsec_private_cidr, 2)
+        ipsec_peer_private_ip = cidrhost(var.ipsec_private_cidr, 1)
         ipsec_private_ip_cidr = format("%s/%s", cidrhost(var.ipsec_private_cidr, 2), split("/", var.ipsec_private_cidr)[1])
         neighbor_short_name = var.neighbor_short_name
         private_net_cidr = var.private_net_cidr
@@ -93,13 +70,8 @@ output "VyOS_Config_File" {
   description = "The Name of the VyOS config file"
 }
 
-output "BGP_Password" {
-  value       = random_string.bgp_password.result
-  description = "The BGP password for peering"
-}
-
 output "IPSec_Pre_Shared_Key" {
-  value       = random_string.ipsec_psk.result
+  value       = var.ipsec_pre_shared_key
   description = "IPSec pre shared key for authentication."
 }
 

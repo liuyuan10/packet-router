@@ -8,6 +8,11 @@ variable "project_id" {
     description = "The project id to deploy into"
 }
 
+variable "vlan_id" {
+    type = number
+    description = "The vlan to attach the router to"
+}
+
 variable "ipsec_peer_public_ip" {
   type        = string
   description = "Public IP of the router you're creating the VPN with"
@@ -72,9 +77,14 @@ variable "ipsec_private_cidr" {
   description = "IPSec IPs used for BGP peering (/30 usually)"
 }
 
+variable "ipsec_pre_shared_key" {
+  type        = string
+  description = "IPSec preshared key"
+}
+
 variable "neighbor_short_name" {
   type        = string
-  default     = "Equinix"
+  default     = "GCP"
   description = "Friendly name of who you are peering with"
 }
 

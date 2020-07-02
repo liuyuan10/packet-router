@@ -23,12 +23,21 @@ cd packet-router
 Terraform uses modules to deploy infrastructure. In order to initialize the modules your simply run: `terraform init`. This should download modules into a hidden directory `.terraform` 
  
 ## Modify your variables 
-You will need to set three variables at a minimum and there are a lot more you may wish to modify in `variables.tf`
+You will need to set these variables:
 ```bash 
 cat <<EOF >terraform.tfvars 
-auth_token = "cefa5c94-e8ee-4577-bff8-1d1edca93ed8" 
-project_id = "42259e34-d300-48b3-b3e1-d5165cd14169" 
-ipsec_peer_public_ip = "192.168.2.2"
+# API Keys for your personal account from packet.com
+auth_token = ""
+# project id for your packet project (not the project name). Can find in project settings
+project_id = ""
+ipsec_peer_public_ip = "34.67.73.39"
+hostname = "vpn-gateway"
+facility = "dfw2"
+bgp_neighbor_asn = 65200
+vlan_id = 1176
+# gerneate one at https://cloud.google.com/network-connectivity/docs/vpn/how-to/generating-pre-shared-key
+ipsec_pre_shared_key = ""
+private_net_cidr = "192.168.1.0/24"
 EOF 
 ``` 
 ## Deploy terraform template
@@ -121,6 +130,8 @@ Which drive should GRUB modify the boot partition on? [sda]:<b>sdc</b>
 Setting up grub: OK
 Done!
 </pre>
+
+Reboot after the installation is done.
 
 ## Set a VyOS password
 Wait... Didn't VyOS just ask me to set a password for the **vyos** two minutes ago? Yep! I'm not sure what that does... But I had to set the password via config mode myself. (I even tried a reboot thinking maybe this only takes effect after the server boots from the newly installed disk... No dice!) Here we go:
